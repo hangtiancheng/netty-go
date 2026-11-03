@@ -9,7 +9,7 @@ netty-go is heavily inspired by [netty](https://github.com/netty/netty)
 - Extensible transport support, default support TCP, [UDP, QUIC, KCP, Websocket](https://github.com/yukino-js/netty-go/transports)
 - Extensible codec support
 - Based on responsibility chain model
-- Zero-dependency
+- Byte buffer reuse through [go-buffer-pool](https://github.com/libp2p/go-buffer-pool)
 
 ## Documentation
 
@@ -27,6 +27,8 @@ This repository is a Go workspace. Every module lives in its own top-level direc
 | examples   | `examples`   | `github.com/yukino-js/netty-go/examples`   |
 
 `go.work` connects the modules for local builds and tests, so changes in one module are immediately visible to the others. Each module keeps its own `go.mod` and `go.sum`, and can be built on its own with `go build ./...`.
+
+The core uses `github.com/libp2p/go-buffer-pool` directly for temporary byte slices. The former `utils/pool`, `pbytes`, and `pbuffer` packages have been removed. Buffer capacities and retention follow libp2p's power-of-two pools, including buffers larger than the former 64 KiB limit.
 
 ## Examples
 

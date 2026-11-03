@@ -8,6 +8,8 @@ require (
 	github.com/yukino-js/netty-go/transports v1.7.15
 )
 
+require github.com/libp2p/go-buffer-pool v0.1.0 // indirect
+
 replace github.com/yukino-js/netty-go => ../
 
 replace github.com/yukino-js/netty-go/transports => ../transports

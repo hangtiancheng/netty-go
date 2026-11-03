@@ -3,16 +3,16 @@ package netty
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"net"
 	"sync"
 	"sync/atomic"
 	"time"
 
+	bufferpool "github.com/libp2p/go-buffer-pool"
+
 	"github.com/yukino-js/netty-go/transport"
 	"github.com/yukino-js/netty-go/utils"
-	"github.com/yukino-js/netty-go/utils/pool/pbytes"
 )
 
 // ErrAsyncNoSpace is returned when an write queue full if not writeForever flags.
@@ -287,16 +287,20 @@ func (c *channel) ReadFrom(r io.Reader) (n int64, err error) {
 	const MinRead = 1024
 
 	for {
-		dataBuff := *pbytes.Get(MinRead)
-		dataBuff = dataBuff[:MinRead]
+		dataBuff := bufferpool.Get(MinRead)
 
 		rn, rerr := r.Read(dataBuff)
 		if rn < 0 {
+			bufferpool.Put(dataBuff)
 			panic("reader returned negative count from Read")
 		}
 		n += int64(rn)
 		if rn > 0 {
 			wn, werr := c.write1(dataBuff[:rn], false)
+			// Async writes own the buffer only after a successful enqueue.
+			if c.writeQueue == nil || werr != nil {
+				bufferpool.Put(dataBuff)
+			}
 			if nil != werr {
 				return n, werr
 			}
@@ -304,8 +308,7 @@ func (c *channel) ReadFrom(r io.Reader) (n int64, err error) {
 				return n, io.ErrShortWrite
 			}
 		} else {
-			dataBuff = dataBuff[:0]
-			pbytes.Put(&dataBuff)
+			bufferpool.Put(dataBuff)
 		}
 
 		if rerr != nil {
@@ -344,16 +347,17 @@ func (c *channel) write1(p []byte, clone bool) (n int, err error) {
 func (c *channel) asyncWrite(ctx context.Context, p []byte, clone bool) (int64, error) {
 	// count of data length
 	dataLen := len(p)
+	queued := false
 
 	if clone {
-		dataBuff := *pbytes.Get(dataLen)
-		dataBuff = dataBuff[:dataLen]
-
-		if n := copy(dataBuff, p); n != dataLen {
-			return 0, fmt.Errorf("%w: want: %d, got: %d", io.ErrShortWrite, len(p), n)
-		}
-
+		dataBuff := bufferpool.Get(dataLen)
+		copy(dataBuff, p)
 		p = dataBuff
+		defer func() {
+			if !queued {
+				bufferpool.Put(dataBuff)
+			}
+		}()
 	}
 
 	// put packet to send queue
@@ -364,7 +368,10 @@ func (c *channel) asyncWrite(ctx context.Context, p []byte, clone bool) (int64, 
 		case <-ctx.Done():
 			return 0, ctx.Err()
 		case <-c.ctx.Done():
-			return 0, c.closeErr
+			if c.closeErr != nil {
+				return 0, c.closeErr
+			}
+			return 0, c.ctx.Err()
 		case c.writeQueue <- packet:
 			// write queue
 		}
@@ -373,13 +380,17 @@ func (c *channel) asyncWrite(ctx context.Context, p []byte, clone bool) (int64, 
 		case <-ctx.Done():
 			return 0, ctx.Err()
 		case <-c.ctx.Done():
-			return 0, c.closeErr
+			if c.closeErr != nil {
+				return 0, c.closeErr
+			}
+			return 0, c.ctx.Err()
 		case c.writeQueue <- packet:
 			// write queue
 		default:
 			return 0, ErrAsyncNoSpace
 		}
 	}
+	queued = true
 
 	// try send
 	if atomic.CompareAndSwapInt32(&c.running, idle, running) {
@@ -392,49 +403,17 @@ func (c *channel) asyncWritev(ctx context.Context, p [][]byte) (int64, error) {
 	// count of data length
 	dataLen := utils.CountOf(p)
 
-	// get buffer from asyncWrite
-	// put buffer from writeOnce
-	dataBuff := *pbytes.Get(int(dataLen))
-	dataBuff = dataBuff[:0]
+	dataBuff := bufferpool.Get(int(dataLen))
 	offset := 0
 	for _, b := range p {
-		if cn := copy(dataBuff[offset:cap(dataBuff)], b); cn != len(b) {
-			return 0, fmt.Errorf("%w: want: %d, got: %d", io.ErrShortWrite, len(b), cn)
-		} else {
-			offset += cn
-		}
+		offset += copy(dataBuff[offset:], b)
 	}
 
-	// put packet to send queue
-	var packet = dataBuff[:offset]
-
-	if c.untilWrite {
-		select {
-		case <-ctx.Done():
-			return 0, ctx.Err()
-		case <-c.ctx.Done():
-			return 0, c.closeErr
-		case c.writeQueue <- packet:
-			// write queue
-		}
-	} else {
-		select {
-		case <-ctx.Done():
-			return 0, ctx.Err()
-		case <-c.ctx.Done():
-			return 0, c.closeErr
-		case c.writeQueue <- packet:
-			// write queue
-		default:
-			return 0, ErrAsyncNoSpace
-		}
+	n, err := c.asyncWrite(ctx, dataBuff, false)
+	if err != nil {
+		bufferpool.Put(dataBuff)
 	}
-
-	// try send
-	if atomic.CompareAndSwapInt32(&c.running, idle, running) {
-		c.executor.Exec(c.writeOnce)
-	}
-	return dataLen, nil
+	return n, err
 }
 
 // IsActive return true if the Channel is active and so connected
@@ -564,17 +543,7 @@ func (c *channel) writeOnce() {
 
 		if len(sendBuffers) > 0 {
 
-			utils.AssertLong(c.transport.Writev(sendBuffers))
-
-			// clear buffer ref
-			for index, buf := range recycleBuffers {
-				// reuse buffer
-				buf := buf[:0]
-				pbytes.Put(&buf)
-				// avoid memory leak
-				sendBuffers[index] = nil
-				recycleBuffers[index] = nil
-			}
+			c.writeBatch(sendBuffers, recycleBuffers)
 
 			// continue to send remain packets
 			if len(c.writeQueue) > 0 {
@@ -596,6 +565,19 @@ func (c *channel) writeOnce() {
 		// no packets to send
 		break
 	}
+}
+
+// writeBatch keeps the original slices alive until Writev has finished, even
+// when the transport consumes the slice headers or fails partway through.
+func (c *channel) writeBatch(sendBuffers, recycleBuffers net.Buffers) {
+	defer func() {
+		for index, buf := range recycleBuffers {
+			bufferpool.Put(buf)
+			sendBuffers[index] = nil
+			recycleBuffers[index] = nil
+		}
+	}()
+	utils.AssertLong(c.transport.Writev(sendBuffers))
 }
 
 type channelWriter struct {
