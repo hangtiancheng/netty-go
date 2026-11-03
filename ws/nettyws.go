@@ -1,0 +1,138 @@
+package netty_ws
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"net/http"
+	"sync"
+
+	"github.com/yukino-js/netty-go"
+	"github.com/yukino-js/netty-go/examples/transport/websocket"
+	"github.com/yukino-js/netty-go/transport"
+)
+
+type OnOpenFunc func(conn Conn)
+type OnDataFunc func(conn Conn, data []byte)
+type OnCloseFunc func(conn Conn, err error)
+
+type Websocket struct {
+	engine    netty.Bootstrap
+	holder    netty.ChannelHolder
+	options   *websocket.Options
+	ctx       context.Context
+	cancel    context.CancelFunc
+	listeners sync.Map // map<url , netty.Listener>
+	upgrader  websocket.HTTPUpgrader
+
+	OnOpen  OnOpenFunc
+	OnData  OnDataFunc
+	OnClose OnCloseFunc
+}
+
+// NewWebsocket create websocket instance with options
+func NewWebsocket(options ...Option) *Websocket {
+	opts := parseOptions(options...)
+
+	ws := &Websocket{}
+	ws.engine = opts.engine
+	ws.holder = newChannelHolder(1024)
+	ws.options = opts.wsOptions()
+	ws.ctx, ws.cancel = context.WithCancel(opts.engine.Context())
+	ws.upgrader = websocket.NewHTTPUpgrader(opts.engine, transport.WithAttachment(ws), transport.WithContext(ws.ctx), websocket.WithOptions(ws.options))
+	return ws
+}
+
+// Open websocket connection from address
+func (ws *Websocket) Open(addr string) (conn Conn, err error) {
+	channel, err := ws.engine.Connect(addr, transport.WithAttachment(ws), transport.WithContext(ws.ctx), websocket.WithOptions(ws.options))
+	if nil == err {
+		channel.Pipeline().IndexOf(func(handler netty.Handler) bool {
+			var ok bool
+			conn, ok = handler.(Conn)
+			return ok
+		})
+
+		if nil == conn {
+			err = fmt.Errorf("not found `Conn` Handler in pipleine")
+			channel.Close(err)
+		}
+
+	}
+	return conn, err
+}
+
+// Listen websocket connections on address
+func (ws *Websocket) Listen(addr string) error {
+	// create listener
+	listener := ws.engine.Listen(addr, transport.WithAttachment(ws), transport.WithContext(ws.ctx), websocket.WithOptions(ws.options))
+	ws.listeners.Store(addr, listener)
+
+	defer func() {
+		if _, loaded := ws.listeners.LoadAndDelete(addr); loaded {
+			_ = listener.Close()
+		}
+	}()
+
+	// listen connections
+	return listener.Sync()
+}
+
+// Close the listeners and connections
+func (ws *Websocket) Close() error {
+	// all child or client connections to canceled
+	ws.cancel()
+
+	// close all listeners
+	ws.listeners.Range(func(key, value interface{}) bool {
+		ws.listeners.Delete(key)
+		_ = value.(netty.Listener).Close()
+		return true
+	})
+
+	// close all connections
+	ws.holder.CloseAll(ClosedError{Code: 1000, Reason: "websocket shutdown"})
+
+	// stop the custom engine
+	if defaultEngine != ws.engine {
+		ws.engine.Shutdown()
+	}
+	return nil
+}
+
+func (ws *Websocket) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	if _, err := ws.UpgradeHTTP(writer, request); nil != err {
+		if errors.Is(err, ErrServerClosed) {
+			http.Error(writer, "http: server shutdown", http.StatusNotAcceptable)
+		} else {
+			http.Error(writer, err.Error(), http.StatusNotAcceptable)
+		}
+	}
+}
+
+// UpgradeHTTP upgrades http connection to the websocket connection
+func (ws *Websocket) UpgradeHTTP(writer http.ResponseWriter, request *http.Request) (conn Conn, err error) {
+
+	select {
+	case <-ws.ctx.Done():
+		return nil, ErrServerClosed
+	default:
+	}
+
+	channel, err := ws.upgrader.Upgrade(writer, request)
+	if nil != err {
+		return nil, err
+	}
+
+	channel.Pipeline().IndexOf(func(handler netty.Handler) bool {
+		var ok bool
+		conn, ok = handler.(Conn)
+		return ok
+	})
+
+	if nil == conn {
+		err = fmt.Errorf("not found `Conn` Handler in pipleine")
+		channel.Close(err)
+	}
+	return
+}
