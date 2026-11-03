@@ -140,10 +140,16 @@ if err := http.ListenAndServe(":9527", nil); nil != err {
 }
 ```
 
+## WebSocket backend
+
+The implementation uses `github.com/gorilla/websocket`. The `Conn` interface and `WithClientHeader`, `WithServerHeader`, `WithDialer`, and `WithCompress` options keep their existing signatures. `WithMaxFrameSize` now limits the complete message, including all fragments and decompressed data. Compression uses no context takeover.
+
+HTTP upgrades use Gorilla's default origin policy: absent origins and origins matching the request host are accepted. Applications that need a custom origin policy can use the transport's `HTTPUpgrader` and configure its Gorilla `Upgrader.CheckOrigin`. See the [transport migration notes](../transports/README.md#websocket-migration) for low-level configuration changes.
+
 ## Associated
 
 - https://github.com/yukino-js/netty-go
 - https://github.com/yukino-js/netty-go/transports
-- https://github.com/gobwas/ws
+- https://github.com/gorilla/websocket
 - https://github.com/lesismal/go-websocket-benchmark
 - https://github.com/crossbario/autobahn-testsuite

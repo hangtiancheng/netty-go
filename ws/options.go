@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/gobwas/ws"
+	ws "github.com/gorilla/websocket"
 	"github.com/yukino-js/netty-go"
 	"github.com/yukino-js/netty-go/transports/websocket"
 )
@@ -68,30 +68,22 @@ func parseOptions(opt ...Option) *options {
 }
 
 func (wso *options) wsOptions() *websocket.Options {
-	opCode := ws.OpText
+	opCode := ws.TextMessage
 	if MsgBinary == wso.messageType {
-		opCode = ws.OpBinary
+		opCode = ws.BinaryMessage
 	}
 
-	var dialer = ws.DefaultDialer
-	dialer.Timeout = wso.dialTimeout
-	if wso.requestHeader != nil {
-		dialer.Header = ws.HandshakeHeaderHTTP(wso.requestHeader)
-	}
+	var dialer = *ws.DefaultDialer
+	dialer.HandshakeTimeout = wso.dialTimeout
 
 	if wso.dialer != nil {
 		ctxDialer, isCtxDialer := wso.dialer.(contextDialer)
-		dialer.NetDial = func(ctx context.Context, network, addr string) (net.Conn, error) {
+		dialer.NetDialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
 			if isCtxDialer {
 				return ctxDialer.DialContext(ctx, network, addr)
 			}
 			return wso.dialer.Dial(network, addr)
 		}
-	}
-
-	var upgrader = ws.DefaultHTTPUpgrader
-	if wso.responseHeader != nil {
-		upgrader.Header = wso.responseHeader
 	}
 
 	return &websocket.Options{
@@ -107,7 +99,8 @@ func (wso *options) wsOptions() *websocket.Options {
 		CompressLevel:     wso.compressLevel,
 		CompressThreshold: wso.compressThreshold,
 		Dialer:            dialer,
-		Upgrader:          upgrader,
+		RequestHeader:     wso.requestHeader,
+		ResponseHeader:    wso.responseHeader,
 		ServeMux:          wso.serveMux,
 	}
 }
@@ -152,7 +145,7 @@ func WithNoDelay(noDelay bool) Option {
 	}
 }
 
-// WithMaxFrameSize set the maximum frame size
+// WithMaxFrameSize sets the maximum incoming message size across all fragments.
 func WithMaxFrameSize(maxFrameSize int64) Option {
 	return func(options *options) {
 		options.maxFrameSize = maxFrameSize

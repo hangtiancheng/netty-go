@@ -4,101 +4,90 @@ import (
 	"compress/flate"
 	"context"
 	"crypto/tls"
-	"io"
 	"net/http"
-	"sync"
 
-	"github.com/gobwas/httphead"
-	"github.com/gobwas/ws"
-	"github.com/gobwas/ws/wsflate"
+	"github.com/gorilla/websocket"
 	"github.com/yukino-js/netty-go/transport"
-	"github.com/yukino-js/netty-go/transports/websocket/internal/wsutils"
 )
 
-// DefaultOptions default websocket options
+// DefaultOptions default websocket options.
 var DefaultOptions = (&Options{
-	OpCode:            ws.OpText,
-	Dialer:            ws.DefaultDialer,
-	Upgrader:          ws.DefaultHTTPUpgrader,
+	OpCode:            websocket.TextMessage,
+	Dialer:            *websocket.DefaultDialer,
 	ServeMux:          http.DefaultServeMux,
 	Backlog:           128,
 	NoDelay:           true,
-	CompressEnabled:   false,
 	CompressLevel:     flate.BestSpeed,
 	CompressThreshold: 512,
 }).Apply()
 
-// Options to define the websocket
+// Options defines the websocket transport configuration.
 type Options struct {
-	CertFile          string          `json:"certFile"`
-	KeyFile           string          `json:"keyFile"`
-	OpCode            ws.OpCode       `json:"opCode"`
-	Routers           []string        `json:"routers"`
-	CheckUTF8         bool            `json:"checkUTF8"`
-	MaxFrameSize      int64           `json:"maxFrameSize"`
-	ReadBufferSize    int             `json:"readBufferSize"`
-	WriteBufferSize   int             `json:"writeBufferSize"`
-	Backlog           int             `json:"backlog"`
-	NoDelay           bool            `json:"nodelay"`
-	CompressEnabled   bool            `json:"compressEnabled"`
-	CompressLevel     int             `json:"compressLevel"`
-	CompressThreshold int64           `json:"compressThreshold"`
-	TLS               *tls.Config     `json:"-"`
-	Dialer            ws.Dialer       `json:"-"`
-	Upgrader          ws.HTTPUpgrader `json:"-"`
-	ServeMux          *http.ServeMux  `json:"-"`
-	flateReaderPool   *sync.Pool
-	flateWriterPool   *sync.Pool
+	CertFile          string             `json:"certFile"`
+	KeyFile           string             `json:"keyFile"`
+	OpCode            int                `json:"opCode"` // TextMessage, BinaryMessage, or their bitwise OR.
+	Routers           []string           `json:"routers"`
+	CheckUTF8         bool               `json:"checkUTF8"`
+	MaxFrameSize      int64              `json:"maxFrameSize"` // Maximum incoming message size, including all fragments.
+	ReadBufferSize    int                `json:"readBufferSize"`
+	WriteBufferSize   int                `json:"writeBufferSize"`
+	Backlog           int                `json:"backlog"`
+	NoDelay           bool               `json:"nodelay"`
+	CompressEnabled   bool               `json:"compressEnabled"`
+	CompressLevel     int                `json:"compressLevel"`
+	CompressThreshold int64              `json:"compressThreshold"`
+	TLS               *tls.Config        `json:"-"`
+	Dialer            websocket.Dialer   `json:"-"`
+	Upgrader          websocket.Upgrader `json:"-"`
+	RequestHeader     http.Header        `json:"-"`
+	ResponseHeader    http.Header        `json:"-"`
+	ServeMux          *http.ServeMux     `json:"-"`
 }
 
+// Apply returns a configured copy so options can be reused by concurrent dials.
 func (o *Options) Apply() *Options {
-	o.flateReaderPool = &sync.Pool{}
-	o.flateWriterPool = &sync.Pool{}
-
-	o.flateReaderPool.New = func() interface{} {
-		return wsutils.NewFlateReader(nil, func(reader io.Reader) wsflate.Decompressor {
-			r := flate.NewReader(reader)
-			return r
-		})
+	options := *o
+	o = &options
+	o.RequestHeader = o.RequestHeader.Clone()
+	o.ResponseHeader = o.ResponseHeader.Clone()
+	if o.OpCode == 0 {
+		o.OpCode = websocket.TextMessage
 	}
-
-	if o.CompressEnabled {
-		compressLv := o.CompressLevel
-		o.flateWriterPool.New = func() interface{} {
-			return wsutils.NewFlateWriter(nil, func(writer io.Writer) wsflate.Compressor {
-				w, _ := flate.NewWriter(writer, compressLv)
-				return w
-			})
-		}
-
-		if nil == o.Upgrader.Negotiate {
-			o.Upgrader.Negotiate = func(option httphead.Option) (httphead.Option, error) {
-				e := wsflate.Extension{
-					Parameters: wsflate.DefaultParameters,
-				}
-				return e.Negotiate(option)
-			}
-		}
-
-		if nil == o.Dialer.Extensions {
-			o.Dialer.Extensions = []httphead.Option{wsflate.DefaultParameters.Option()}
-		}
+	if o.ServeMux == nil {
+		o.ServeMux = http.DefaultServeMux
 	}
-
-	if "" != o.CertFile && "" != o.KeyFile {
-		if cer, err := tls.LoadX509KeyPair(o.CertFile, o.KeyFile); nil != err {
+	if o.ReadBufferSize > 0 {
+		o.Dialer.ReadBufferSize = o.ReadBufferSize
+		o.Upgrader.ReadBufferSize = o.ReadBufferSize
+	}
+	if o.WriteBufferSize > 0 {
+		o.Dialer.WriteBufferSize = o.WriteBufferSize
+		o.Upgrader.WriteBufferSize = o.WriteBufferSize
+	}
+	o.Dialer.EnableCompression = o.CompressEnabled
+	o.Upgrader.EnableCompression = o.CompressEnabled
+	if o.TLS != nil {
+		o.TLS = o.TLS.Clone()
+	}
+	if o.CertFile != "" && o.KeyFile != "" {
+		cert, err := tls.LoadX509KeyPair(o.CertFile, o.KeyFile)
+		if err != nil {
 			panic(err)
-		} else {
-			o.TLS.Certificates = append(o.TLS.Certificates, cer)
 		}
+		if o.TLS == nil {
+			o.TLS = &tls.Config{}
+		}
+		o.TLS.Certificates = append(o.TLS.Certificates, cert)
 	}
-
+	if o.TLS != nil {
+		o.Dialer.TLSClientConfig = o.TLS
+	}
 	return o
 }
 
 type contextKey struct{}
 
-// WithOptions to wrap the websocket options
+// WithOptions wraps the websocket options.
 func WithOptions(option *Options) transport.Option {
 	return func(options *transport.Options) error {
 		options.Context = context.WithValue(options.Context, contextKey{}, option.Apply())
@@ -106,7 +95,7 @@ func WithOptions(option *Options) transport.Option {
 	}
 }
 
-// FromContext to unwrap the websocket options
+// FromContext unwraps the websocket options.
 func FromContext(ctx context.Context, def *Options) *Options {
 	if v, ok := ctx.Value(contextKey{}).(*Options); ok {
 		return v

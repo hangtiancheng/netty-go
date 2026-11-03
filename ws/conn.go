@@ -3,11 +3,12 @@ package netty_ws
 import (
 	"bytes"
 	"context"
+	"errors"
 	"net/http"
 	"sync/atomic"
 	"time"
 
-	"github.com/gobwas/ws/wsutil"
+	"github.com/gorilla/websocket"
 	"github.com/yukino-js/netty-go"
 	"github.com/yukino-js/netty-go/utils"
 )
@@ -184,8 +185,9 @@ func (c *wsConn) HandleException(ctx netty.ExceptionContext, ex netty.Exception)
 
 func (c *wsConn) HandleInactive(ctx netty.InactiveContext, ex netty.Exception) {
 	// covert error
-	if closeErr, ok := ex.(wsutil.ClosedError); ok {
-		ex = ClosedError{Code: int(closeErr.Code), Reason: closeErr.Reason}
+	var closeErr *websocket.CloseError
+	if errors.As(ex, &closeErr) {
+		ex = ClosedError{Code: closeErr.Code, Reason: closeErr.Text}
 	}
 
 	if onClose := c.ws.OnClose; nil != onClose {

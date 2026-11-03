@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 mkdir -p ./autobahn/bin
 go build -o ./autobahn/bin/autobahn_server ./autobahn/server/
 go build -o ./autobahn/bin/autobahn_reporter ./autobahn/reporter/

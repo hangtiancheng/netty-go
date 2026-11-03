@@ -101,12 +101,9 @@ func (ws *Websocket) Close() error {
 }
 
 func (ws *Websocket) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
-	if _, err := ws.UpgradeHTTP(writer, request); nil != err {
-		if errors.Is(err, ErrServerClosed) {
-			http.Error(writer, "http: server shutdown", http.StatusNotAcceptable)
-		} else {
-			http.Error(writer, err.Error(), http.StatusNotAcceptable)
-		}
+	// Gorilla writes handshake failures to the response itself.
+	if _, err := ws.UpgradeHTTP(writer, request); errors.Is(err, ErrServerClosed) {
+		http.Error(writer, "http: server shutdown", http.StatusNotAcceptable)
 	}
 }
 

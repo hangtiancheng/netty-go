@@ -4,10 +4,9 @@ import (
 	"errors"
 	"net"
 	"net/http"
-	"net/url"
 	"time"
 
-	"github.com/gobwas/ws"
+	"github.com/gorilla/websocket"
 	"github.com/yukino-js/netty-go/transport"
 )
 
@@ -32,14 +31,8 @@ func (w *websocketFactory) Connect(options *transport.Options) (transport.Transp
 
 	wsDialer := wsOptions.Dialer // copy dialer
 
-	headers := make(http.Header)
-	wsDialer.OnHeader = func(key, value []byte) (err error) {
-		headers.Add(string(key), string(value))
-		return nil
-	}
-
-	u := &url.URL{Scheme: options.Address.Scheme, Host: options.Address.Host, Path: options.Address.Path}
-	conn, _, hs, err := wsDialer.Dial(options.Context, u.String())
+	u := options.Address
+	conn, response, err := wsDialer.DialContext(options.Context, u.String(), wsOptions.RequestHeader)
 	if nil != err {
 		return nil, err
 	}
@@ -50,14 +43,14 @@ func (w *websocketFactory) Connect(options *transport.Options) (transport.Transp
 		Proto:      "HTTP/1.1",
 		ProtoMajor: 1,
 		ProtoMinor: 1,
-		Header:     headers,
+		Header:     response.Header,
 		Body:       http.NoBody,
 		Host:       u.Host,
 		RemoteAddr: conn.RemoteAddr().String(),
 		RequestURI: u.RequestURI(),
 	}
 
-	tt, err := newWebsocketTransport(conn, wsOptions, true, request, hs)
+	tt, err := newWebsocketTransport(conn, wsOptions, request)
 	if nil != err {
 		_ = conn.Close()
 		return nil, err
@@ -121,9 +114,8 @@ func (w *websocketFactory) Listen(options *transport.Options) (transport.Accepto
 }
 
 type acceptEvent struct {
-	conn    net.Conn
+	conn    *websocket.Conn
 	request *http.Request
-	hs      ws.Handshake
 }
 
 type wsAcceptor struct {
@@ -135,7 +127,7 @@ type wsAcceptor struct {
 
 func (w *wsAcceptor) upgradeHTTP(writer http.ResponseWriter, request *http.Request) {
 
-	conn, _, hs, err := w.wsOptions.Upgrader.Upgrade(request, writer)
+	conn, err := w.wsOptions.Upgrader.Upgrade(writer, request, w.wsOptions.ResponseHeader)
 	if nil != err {
 		if nil != conn {
 			_ = conn.Close()
@@ -147,7 +139,7 @@ func (w *wsAcceptor) upgradeHTTP(writer http.ResponseWriter, request *http.Reque
 	case <-w.closedSignal:
 		_ = conn.Close()
 		return
-	case w.incoming <- acceptEvent{conn: conn, request: request, hs: hs}:
+	case w.incoming <- acceptEvent{conn: conn, request: request}:
 		// post to acceptor
 	}
 }
@@ -155,7 +147,7 @@ func (w *wsAcceptor) upgradeHTTP(writer http.ResponseWriter, request *http.Reque
 func (w *wsAcceptor) Accept() (transport.Transport, error) {
 	select {
 	case ev := <-w.incoming:
-		tt, err := newWebsocketTransport(ev.conn, w.wsOptions, false, ev.request, ev.hs)
+		tt, err := newWebsocketTransport(ev.conn, w.wsOptions, ev.request)
 		if nil != err {
 			_ = ev.conn.Close()
 			return nil, err

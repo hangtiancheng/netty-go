@@ -4,9 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/gobwas/httphead"
-	"github.com/gobwas/ws"
-	"github.com/gobwas/ws/wsflate"
+	"github.com/gorilla/websocket"
 	"github.com/yukino-js/netty-go"
 	"github.com/yukino-js/netty-go/transport"
 )
@@ -20,7 +18,7 @@ type channelServe interface {
 }
 
 type HTTPUpgrader struct {
-	Upgrader   ws.HTTPUpgrader
+	Upgrader   websocket.Upgrader
 	ctx        context.Context
 	attachment netty.Attachment
 	options    *Options
@@ -35,15 +33,6 @@ func NewHTTPUpgrader(engine netty.Bootstrap, option ...transport.Option) HTTPUpg
 
 	wsOptions := FromContext(options.Context, DefaultOptions)
 
-	if wsOptions.CompressEnabled && nil == wsOptions.Upgrader.Negotiate {
-		wsOptions.Upgrader.Negotiate = func(option httphead.Option) (httphead.Option, error) {
-			e := wsflate.Extension{
-				Parameters: wsflate.DefaultParameters,
-			}
-			return e.Negotiate(option)
-		}
-	}
-
 	return HTTPUpgrader{
 		Upgrader:   wsOptions.Upgrader,
 		ctx:        options.Context,
@@ -54,7 +43,7 @@ func NewHTTPUpgrader(engine netty.Bootstrap, option ...transport.Option) HTTPUpg
 }
 
 func (hu HTTPUpgrader) Upgrade(writer http.ResponseWriter, request *http.Request) (netty.Channel, error) {
-	conn, _, hs, err := hu.Upgrader.Upgrade(request, writer)
+	conn, err := hu.Upgrader.Upgrade(writer, request, hu.options.ResponseHeader)
 	if nil != err {
 		if nil != conn {
 			_ = conn.Close()
@@ -62,7 +51,7 @@ func (hu HTTPUpgrader) Upgrade(writer http.ResponseWriter, request *http.Request
 		return nil, err
 	}
 
-	t, err := newWebsocketTransport(conn, hu.options, false, request, hs)
+	t, err := newWebsocketTransport(conn, hu.options, request)
 	if nil != err {
 		_ = conn.Close()
 		return nil, err
