@@ -19,12 +19,12 @@ netty-go is heavily inspired by [netty](https://github.com/netty/netty)
 
 This repository is a Go workspace. Every module lives in its own top-level directory:
 
-| Module | Directory | Import path |
-| --- | --- | --- |
-| core | `.` | `github.com/yukino-js/netty-go` |
+| Module     | Directory    | Import path                                |
+| ---------- | ------------ | ------------------------------------------ |
+| core       | `.`          | `github.com/yukino-js/netty-go`            |
 | transports | `transports` | `github.com/yukino-js/netty-go/transports` |
-| websocket | `ws` | `github.com/yukino-js/netty-go/ws` |
-| examples | `examples` | `github.com/yukino-js/netty-go/examples` |
+| websocket  | `ws`         | `github.com/yukino-js/netty-go/ws`         |
+| examples   | `examples`   | `github.com/yukino-js/netty-go/examples`   |
 
 `go.work` connects the modules for local builds and tests, so changes in one module are immediately visible to the others. Each module keeps its own `go.mod` and `go.sum`, and can be built on its own with `go build ./...`.
 
