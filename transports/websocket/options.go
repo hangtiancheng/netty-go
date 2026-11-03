@@ -11,8 +11,8 @@ import (
 	"github.com/gobwas/httphead"
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsflate"
-	"github.com/yukino-js/netty-go/examples/transport/websocket/internal/wsutils"
 	"github.com/yukino-js/netty-go/transport"
+	"github.com/yukino-js/netty-go/transports/websocket/internal/wsutils"
 )
 
 // DefaultOptions default websocket options

@@ -1,4 +1,4 @@
-module github.com/yukino-js/netty-go/examples/transport
+module github.com/yukino-js/netty-go/transports
 
 go 1.26.0
 
@@ -24,4 +24,4 @@ require (
 	golang.org/x/time v0.16.0 // indirect
 )
 
-replace github.com/yukino-js/netty-go => ../..
+replace github.com/yukino-js/netty-go => ../

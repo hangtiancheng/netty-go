@@ -10,3 +10,7 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Autobahn test artifacts (ws/autobahn)
+/ws/autobahn/bin/
+/ws/autobahn/report/

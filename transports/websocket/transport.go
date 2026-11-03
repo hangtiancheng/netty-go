@@ -15,8 +15,8 @@ import (
 	"github.com/gobwas/ws/wsflate"
 	"github.com/gobwas/ws/wsutil"
 	kpflate "github.com/klauspost/compress/flate"
-	"github.com/yukino-js/netty-go/examples/transport/websocket/internal/wsutils"
 	"github.com/yukino-js/netty-go/transport"
+	"github.com/yukino-js/netty-go/transports/websocket/internal/wsutils"
 	"github.com/yukino-js/netty-go/utils/pool/pbuffer"
 	"github.com/yukino-js/netty-go/utils/pool/pbytes"
 )

@@ -9,7 +9,7 @@ import (
 
 	"github.com/gobwas/ws"
 	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/examples/transport/websocket"
+	"github.com/yukino-js/netty-go/transports/websocket"
 )
 
 // MessageType websocket message type

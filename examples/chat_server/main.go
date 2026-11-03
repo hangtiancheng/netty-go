@@ -7,7 +7,7 @@ import (
 	"github.com/yukino-js/netty-go"
 	"github.com/yukino-js/netty-go/codec/format"
 	"github.com/yukino-js/netty-go/codec/frame"
-	"github.com/yukino-js/netty-go/examples/transport/websocket"
+	"github.com/yukino-js/netty-go/transports/websocket"
 )
 
 var ManagerInst = NewManager()
@@ -16,7 +16,7 @@ func main() {
 
 	// index page.
 	websocket.DefaultOptions.ServeMux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		writer.Write(indexHtml)
+		writer.Write(indexHTML)
 	})
 
 	// child pipeline initializer.

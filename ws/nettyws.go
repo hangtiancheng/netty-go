@@ -8,8 +8,8 @@ import (
 	"sync"
 
 	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/examples/transport/websocket"
 	"github.com/yukino-js/netty-go/transport"
+	"github.com/yukino-js/netty-go/transports/websocket"
 )
 
 type OnOpenFunc func(conn Conn)

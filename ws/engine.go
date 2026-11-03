@@ -4,7 +4,7 @@ import (
 	"strconv"
 
 	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/examples/transport/websocket"
+	"github.com/yukino-js/netty-go/transports/websocket"
 )
 
 // ClosedError returned when peer has closed the connection with appropriate

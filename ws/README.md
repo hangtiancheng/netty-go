@@ -143,7 +143,7 @@ if err := http.ListenAndServe(":9527", nil); nil != err {
 ## Associated
 
 - https://github.com/yukino-js/netty-go
-- https://github.com/yukino-js/netty-go/examples/transport
+- https://github.com/yukino-js/netty-go/transports
 - https://github.com/gobwas/ws
 - https://github.com/lesismal/go-websocket-benchmark
 - https://github.com/crossbario/autobahn-testsuite
