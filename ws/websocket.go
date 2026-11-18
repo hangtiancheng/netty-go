@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/transport"
-	"github.com/yukino-js/netty-go/transport/websocket"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport/websocket"
 )
 
 type OnOpenFunc func(conn Conn)

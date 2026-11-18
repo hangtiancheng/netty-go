@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/codec/xhttp"
-	"github.com/yukino-js/netty-go/transport/tls"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/codec/xhttp"
+	"github.com/hangtiancheng/netty-go/transport/tls"
 )
 
 func main() {

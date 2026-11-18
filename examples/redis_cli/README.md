@@ -1,6 +1,6 @@
 # redis_cli
 
-A simple redis cli written by [netty-go](https://github.com/yukino-js/netty-go)
+A simple redis cli written by [netty-go](https://github.com/hangtiancheng/netty-go)
 
 ### Preview
 

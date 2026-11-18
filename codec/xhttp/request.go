@@ -6,8 +6,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/internal/utils"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/internal/utils"
 )
 
 type requestCodec struct {

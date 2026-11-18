@@ -5,7 +5,7 @@ import (
 	"errors"
 	"net"
 
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 // New a tls transport factory

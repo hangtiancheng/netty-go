@@ -4,8 +4,8 @@ import (
 	"context"
 	"crypto/tls"
 
+	"github.com/hangtiancheng/netty-go/transport"
 	"github.com/quic-go/quic-go"
-	"github.com/yukino-js/netty-go/transport"
 )
 
 // DefaultOptions default quic options

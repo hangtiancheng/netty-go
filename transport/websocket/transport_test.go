@@ -15,7 +15,7 @@ import (
 	"time"
 
 	ws "github.com/gorilla/websocket"
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 func testOptions() *Options {

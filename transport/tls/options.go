@@ -4,7 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 // DefaultOptions default tls options

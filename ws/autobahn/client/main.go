@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/yukino-js/netty-go/ws"
+	"github.com/hangtiancheng/netty-go/ws"
 )
 
 const remoteAddr = "127.0.0.1:9001"

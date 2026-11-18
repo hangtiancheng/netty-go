@@ -3,8 +3,8 @@ package frame
 import (
 	"encoding/binary"
 
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/internal/utils"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/internal/utils"
 )
 
 // LengthFieldPrepender for LengthFieldCodec

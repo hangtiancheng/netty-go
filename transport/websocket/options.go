@@ -7,7 +7,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 // DefaultOptions default websocket options.

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/yukino-js/netty-go"
+	"github.com/hangtiancheng/netty-go"
 )
 
 func main() {

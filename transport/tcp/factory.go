@@ -5,7 +5,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 // New tcp factory

@@ -10,7 +10,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/gorilla/websocket"
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 type websocketTransport struct {

@@ -1,6 +1,6 @@
 # netty-go examples
 
-Runnable examples for [netty-go](https://github.com/yukino-js/netty-go).
+Runnable examples for [netty-go](https://github.com/hangtiancheng/netty-go).
 
 Run any example from the repository root, for example:
 

@@ -3,7 +3,7 @@ package netty
 import (
 	"fmt"
 
-	"github.com/yukino-js/netty-go/internal/utils"
+	"github.com/hangtiancheng/netty-go/internal/utils"
 )
 
 // Pipeline defines a message processing pipeline.

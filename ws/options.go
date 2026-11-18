@@ -8,8 +8,8 @@ import (
 	"time"
 
 	gorilla "github.com/gorilla/websocket"
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/transport/websocket"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/transport/websocket"
 )
 
 // MessageType websocket message type

@@ -5,8 +5,8 @@ import (
 	"crypto/sha1"
 	"strings"
 
+	"github.com/hangtiancheng/netty-go/transport"
 	"github.com/xtaci/kcp-go/v5"
-	"github.com/yukino-js/netty-go/transport"
 	"golang.org/x/crypto/pbkdf2"
 )
 

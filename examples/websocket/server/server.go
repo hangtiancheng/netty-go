@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/yukino-js/netty-go/ws"
+	"github.com/hangtiancheng/netty-go/ws"
 )
 
 func main() {

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/codec/format"
-	"github.com/yukino-js/netty-go/codec/frame"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/codec/format"
+	"github.com/hangtiancheng/netty-go/codec/frame"
 )
 
 func main() {

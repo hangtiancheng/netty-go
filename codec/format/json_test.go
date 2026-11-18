@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/internal/utils"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/internal/utils"
 )
 
 func TestJsonCodec_HandleWrite(t *testing.T) {

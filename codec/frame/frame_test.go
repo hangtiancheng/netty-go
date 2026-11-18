@@ -1,6 +1,6 @@
 package frame
 
-import "github.com/yukino-js/netty-go"
+import "github.com/hangtiancheng/netty-go"
 
 // MockHandlerContext for mock handler context
 type MockHandlerContext struct {

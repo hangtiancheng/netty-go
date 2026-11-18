@@ -6,9 +6,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/yukino-js/netty-go/internal/utils"
+	"github.com/hangtiancheng/netty-go/internal/utils"
 
-	"github.com/yukino-js/netty-go"
+	"github.com/hangtiancheng/netty-go"
 )
 
 func TestFixedLengthCodec(t *testing.T) {

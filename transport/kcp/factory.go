@@ -1,8 +1,8 @@
 package kcp
 
 import (
+	"github.com/hangtiancheng/netty-go/transport"
 	"github.com/xtaci/kcp-go/v5"
-	"github.com/yukino-js/netty-go/transport"
 )
 
 // New a kcp transport factory

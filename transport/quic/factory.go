@@ -3,8 +3,8 @@ package quic
 import (
 	"net"
 
-	"github.com/yukino-js/netty-go/transport"
-	"github.com/yukino-js/netty-go/transport/quic/internal/quick"
+	"github.com/hangtiancheng/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport/quic/internal/quick"
 )
 
 // New quic transport factory

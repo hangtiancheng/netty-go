@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/yukino-js/netty-go/ws"
+	"github.com/hangtiancheng/netty-go/ws"
 )
 
 func main() {

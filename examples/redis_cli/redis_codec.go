@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/examples/redis_cli/resp"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/examples/redis_cli/resp"
 )
 
 type simpleRedisCodec struct {

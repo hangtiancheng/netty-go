@@ -2,19 +2,19 @@
 
 [![GoDoc][1]][2] [![license-Apache 2][3]][4]
 
-[1]: https://godoc.org/github.com/yukino-js/netty-go/ws?status.svg
-[2]: https://godoc.org/github.com/yukino-js/netty-go/ws
+[1]: https://godoc.org/github.com/hangtiancheng/netty-go/ws?status.svg
+[2]: https://godoc.org/github.com/hangtiancheng/netty-go/ws
 [3]: https://img.shields.io/badge/license-Apache%202-blue.svg
 [4]: ../LICENSE
 
-A high-level WebSocket server and client built on [netty-go](https://github.com/yukino-js/netty-go).
+A high-level WebSocket server and client built on [netty-go](https://github.com/hangtiancheng/netty-go).
 
 The low-level WebSocket transport lives in [`../transport/websocket`](../transport/websocket).
 
 ## Install
 
 ```
-go get github.com/yukino-js/netty-go
+go get github.com/hangtiancheng/netty-go
 ```
 
 ## API overview
@@ -133,8 +133,8 @@ HTTP upgrades use Gorilla's default origin policy: absent origins and origins ma
 
 ## Associated
 
-- https://github.com/yukino-js/netty-go
-- https://github.com/yukino-js/netty-go/tree/main/transport/websocket
+- https://github.com/hangtiancheng/netty-go
+- https://github.com/hangtiancheng/netty-go/tree/main/transport/websocket
 - https://github.com/gorilla/websocket
 - https://github.com/lesismal/go-websocket-benchmark
 - https://github.com/crossbario/autobahn-testsuite

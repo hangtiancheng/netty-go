@@ -3,7 +3,7 @@ package udp
 import (
 	"context"
 
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 // DefaultOptions default udp options

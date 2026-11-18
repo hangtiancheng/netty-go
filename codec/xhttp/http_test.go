@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/yukino-js/netty-go"
+	"github.com/hangtiancheng/netty-go"
 )
 
 func TestServerCodec(t *testing.T) {

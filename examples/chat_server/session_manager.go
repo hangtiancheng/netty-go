@@ -3,7 +3,7 @@ package main
 import (
 	"sync"
 
-	"github.com/yukino-js/netty-go"
+	"github.com/hangtiancheng/netty-go"
 )
 
 type Manager interface {

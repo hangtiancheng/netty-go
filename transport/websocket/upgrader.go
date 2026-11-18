@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 type Upgrader interface {

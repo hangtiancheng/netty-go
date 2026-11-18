@@ -1,6 +1,6 @@
 package codec
 
-import "github.com/yukino-js/netty-go"
+import "github.com/hangtiancheng/netty-go"
 
 // Codec defines an CodecHandler alias
 type Codec = netty.CodecHandler

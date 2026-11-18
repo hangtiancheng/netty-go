@@ -11,8 +11,8 @@ import (
 
 	bufferpool "github.com/libp2p/go-buffer-pool"
 
-	"github.com/yukino-js/netty-go/internal/utils"
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/internal/utils"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 // ErrAsyncNoSpace is returned when an write queue full if not writeForever flags.

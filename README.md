@@ -13,7 +13,7 @@ netty-go is heavily inspired by [netty](https://github.com/netty/netty)
 
 ## Documentation
 
-- [GoDoc](https://godoc.org/github.com/yukino-js/netty-go)
+- [GoDoc](https://godoc.org/github.com/hangtiancheng/netty-go)
 
 ## Repository layout
 
@@ -55,9 +55,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/codec/format"
-	"github.com/yukino-js/netty-go/codec/frame"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/codec/format"
+	"github.com/hangtiancheng/netty-go/codec/frame"
 )
 
 func main() {

@@ -5,7 +5,7 @@ import (
 	"io"
 	"net"
 
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 func newUDPClientTransport(conn *net.UDPConn) *udpClientTransport {

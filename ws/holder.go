@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/yukino-js/netty-go"
+	"github.com/hangtiancheng/netty-go"
 )
 
 // newChannelHolder create a new ChannelHolder with initial capacity

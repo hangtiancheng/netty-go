@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/yukino-js/netty-go/transport"
-	"github.com/yukino-js/netty-go/transport/tcp"
+	"github.com/hangtiancheng/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport/tcp"
 )
 
 // ErrServerClosed is returned by the Server call Shutdown or Close.

@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/codec/format"
-	"github.com/yukino-js/netty-go/codec/frame"
-	"github.com/yukino-js/netty-go/transport/websocket"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/codec/format"
+	"github.com/hangtiancheng/netty-go/codec/frame"
+	"github.com/hangtiancheng/netty-go/transport/websocket"
 )
 
 var ManagerInst = NewManager()

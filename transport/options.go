@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/yukino-js/netty-go/internal/utils"
+	"github.com/hangtiancheng/netty-go/internal/utils"
 )
 
 // Option defines option function

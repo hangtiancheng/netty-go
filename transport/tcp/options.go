@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/yukino-js/netty-go/transport"
+	"github.com/hangtiancheng/netty-go/transport"
 )
 
 // DefaultOption default tcp options

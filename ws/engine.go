@@ -3,8 +3,8 @@ package ws
 import (
 	"strconv"
 
-	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/transport/websocket"
+	"github.com/hangtiancheng/netty-go"
+	"github.com/hangtiancheng/netty-go/transport/websocket"
 )
 
 // ClosedError returned when peer has closed the connection with appropriate

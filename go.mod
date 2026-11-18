@@ -1,4 +1,4 @@
-module github.com/yukino-js/netty-go
+module github.com/hangtiancheng/netty-go
 
 go 1.26.0
 
