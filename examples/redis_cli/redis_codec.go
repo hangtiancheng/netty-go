@@ -6,12 +6,11 @@ import (
 	"io"
 
 	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/examples/redis_cli/redis_go"
-	"github.com/yukino-js/netty-go/utils"
+	"github.com/yukino-js/netty-go/examples/redis_cli/resp"
 )
 
 type simpleRedisCodec struct {
-	decoder *redis_go.Decoder
+	decoder *resp.Decoder
 }
 
 func (s *simpleRedisCodec) CodecName() string {
@@ -22,30 +21,36 @@ func (s *simpleRedisCodec) HandleRead(ctx netty.InboundContext, message netty.Me
 
 	// init decoder.
 	if nil == s.decoder {
-		s.decoder = redis_go.NewDecoder(message.(io.Reader), 10240)
+		s.decoder = resp.NewDecoder(message.(io.Reader), 10240)
 	}
 
 	// decode redis response.
-	resp := &redis_go.Resp{}
-	utils.Assert(s.decoder.Decode(resp))
+	reply := &resp.Resp{}
+	if err := s.decoder.Decode(reply); nil != err {
+		ctx.Close(err)
+		return
+	}
 
-	// fmt.Println("->", resp.String())
+	// fmt.Println("->", reply.String())
 	// post response.
-	ctx.HandleRead(resp)
+	ctx.HandleRead(reply)
 }
 
 func (s *simpleRedisCodec) HandleWrite(ctx netty.OutboundContext, message netty.Message) {
 
 	switch v := message.(type) {
-	case []redis_go.Value:
+	case []resp.Value:
 		// encode request.
 		buffer := bytes.NewBuffer(nil)
-		utils.Assert(redis_go.EncodeMulti(buffer, v...))
+		if err := resp.EncodeMulti(buffer, v...); nil != err {
+			ctx.Close(err)
+			return
+		}
 
 		// fmt.Println("<-", buffer.String())
 		// post request.
 		ctx.HandleWrite(buffer)
 	default:
-		utils.Assert(fmt.Errorf("%T is invalid message", message))
+		ctx.Close(fmt.Errorf("%T is invalid message", message))
 	}
 }

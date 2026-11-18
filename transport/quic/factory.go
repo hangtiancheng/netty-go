@@ -4,7 +4,7 @@ import (
 	"net"
 
 	"github.com/yukino-js/netty-go/transport"
-	"github.com/yukino-js/netty-go/transports/quic/internal/quick"
+	"github.com/yukino-js/netty-go/transport/quic/internal/quick"
 )
 
 // New quic transport factory

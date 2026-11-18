@@ -8,7 +8,6 @@ import (
 	"github.com/yukino-js/netty-go"
 	"github.com/yukino-js/netty-go/codec/format"
 	"github.com/yukino-js/netty-go/codec/frame"
-	"github.com/yukino-js/netty-go/utils"
 )
 
 func main() {
@@ -34,8 +33,9 @@ func main() {
 
 	// connect to the server after 1 second
 	time.AfterFunc(time.Second, func() {
-		_, err := bootstrap.Connect("127.0.0.1:6565")
-		utils.Assert(err)
+		if _, err := bootstrap.Connect("127.0.0.1:6565"); nil != err {
+			panic(err)
+		}
 	})
 
 	// setup bootstrap & startup server.

@@ -1,4 +1,4 @@
-package netty_ws
+package ws
 
 import (
 	"fmt"

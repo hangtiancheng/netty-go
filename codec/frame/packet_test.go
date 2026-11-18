@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/utils"
+	"github.com/yukino-js/netty-go/internal/utils"
 )
 
 func TestPacketCodec(t *testing.T) {

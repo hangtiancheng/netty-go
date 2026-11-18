@@ -7,33 +7,33 @@ import (
 	"net"
 	"net/http"
 
-	netty_ws "github.com/yukino-js/netty-go/ws"
+	"github.com/yukino-js/netty-go/ws"
 )
 
 func main() {
 
-	ws := netty_ws.NewWebsocket(
-		netty_ws.WithBufferSize(16*1024, 0),
-		netty_ws.WithMaxFrameSize(32*1024*1024),
-		netty_ws.WithCompress(flate.BestSpeed, 512),
-		netty_ws.WithValidUTF8(),
+	server := ws.NewWebsocket(
+		ws.WithBufferSize(16*1024, 0),
+		ws.WithMaxFrameSize(32*1024*1024),
+		ws.WithCompress(flate.BestSpeed, 512),
+		ws.WithValidUTF8(),
 	)
 
-	ws.OnOpen = func(conn netty_ws.Conn) {
+	server.OnOpen = func(conn ws.Conn) {
 		log.Println("onopen = ", conn.RemoteAddr())
 	}
 
-	ws.OnData = func(conn netty_ws.Conn, data []byte) {
+	server.OnData = func(conn ws.Conn, data []byte) {
 		conn.Write(data)
 	}
 
-	ws.OnClose = func(conn netty_ws.Conn, err error) {
+	server.OnClose = func(conn ws.Conn, err error) {
 		log.Println("onerror = ", conn.RemoteAddr(), ", err = ", err)
 	}
 
 	mux := &http.ServeMux{}
 	mux.HandleFunc("/connect", func(writer http.ResponseWriter, request *http.Request) {
-		if _, err := ws.UpgradeHTTP(writer, request); nil != err {
+		if _, err := server.UpgradeHTTP(writer, request); nil != err {
 			log.Println("UpgradeHTTP: ", err)
 		}
 	})

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/yukino-js/netty-go/utils"
+	"github.com/yukino-js/netty-go/internal/utils"
 
 	"github.com/yukino-js/netty-go"
 )

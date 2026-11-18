@@ -7,7 +7,7 @@ import (
 	"github.com/yukino-js/netty-go"
 	"github.com/yukino-js/netty-go/codec/format"
 	"github.com/yukino-js/netty-go/codec/frame"
-	"github.com/yukino-js/netty-go/transports/websocket"
+	"github.com/yukino-js/netty-go/transport/websocket"
 )
 
 var ManagerInst = NewManager()

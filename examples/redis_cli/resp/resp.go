@@ -1,4 +1,4 @@
-package redis_go
+package resp
 
 import "bytes"
 

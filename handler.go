@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/yukino-js/netty-go/utils"
+	"github.com/yukino-js/netty-go/internal/utils"
 )
 
 type (

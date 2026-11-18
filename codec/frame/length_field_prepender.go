@@ -4,7 +4,7 @@ import (
 	"encoding/binary"
 
 	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/utils"
+	"github.com/yukino-js/netty-go/internal/utils"
 )
 
 // LengthFieldPrepender for LengthFieldCodec

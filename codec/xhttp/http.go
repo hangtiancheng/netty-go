@@ -6,7 +6,7 @@ import (
 
 	"github.com/yukino-js/netty-go"
 	"github.com/yukino-js/netty-go/codec"
-	"github.com/yukino-js/netty-go/utils"
+	"github.com/yukino-js/netty-go/internal/utils"
 )
 
 // ClientCodec create a http client codec

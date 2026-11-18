@@ -1,4 +1,4 @@
-package netty_ws
+package ws
 
 import (
 	"bytes"
@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gorilla/websocket"
+	gorilla "github.com/gorilla/websocket"
 )
 
 type testDialer struct{ called atomic.Bool }
@@ -41,7 +41,7 @@ func TestHTTPUpgradeAndCloseError(t *testing.T) {
 	server := httptest.NewServer(engine)
 	t.Cleanup(server.Close)
 	t.Cleanup(func() { _ = engine.Close() })
-	dialer := *websocket.DefaultDialer
+	dialer := *gorilla.DefaultDialer
 	dialer.EnableCompression = true
 	client, response, err := dialer.Dial("ws"+strings.TrimPrefix(server.URL, "http")+"/echo?token=value", http.Header{"X-Client": {"gorilla"}})
 	if err != nil {
@@ -59,20 +59,20 @@ func TestHTTPUpgradeAndCloseError(t *testing.T) {
 		t.Fatal("handshake headers or URL were lost")
 	}
 	want := bytes.Repeat([]byte("hello"), 1000)
-	if err := client.WriteMessage(websocket.TextMessage, want); err != nil {
+	if err := client.WriteMessage(gorilla.TextMessage, want); err != nil {
 		t.Fatal(err)
 	}
 	_, got, err := client.ReadMessage()
 	if err != nil || !bytes.Equal(got, want) {
 		t.Fatalf("echo = %q, %v", got, err)
 	}
-	if err := client.WriteControl(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, "done"), time.Now().Add(time.Second)); err != nil {
+	if err := client.WriteControl(gorilla.CloseMessage, gorilla.FormatCloseMessage(gorilla.CloseNormalClosure, "done"), time.Now().Add(time.Second)); err != nil {
 		t.Fatal(err)
 	}
 	select {
 	case err := <-closed:
 		var closeErr ClosedError
-		if !errors.As(err, &closeErr) || closeErr.Code != websocket.CloseNormalClosure || closeErr.Reason != "done" {
+		if !errors.As(err, &closeErr) || closeErr.Code != gorilla.CloseNormalClosure || closeErr.Reason != "done" {
 			t.Fatalf("OnClose error = %v", err)
 		}
 	case <-time.After(3 * time.Second):
@@ -81,7 +81,7 @@ func TestHTTPUpgradeAndCloseError(t *testing.T) {
 }
 
 func TestOpenHeadersAndCustomDialer(t *testing.T) {
-	upgrader := websocket.Upgrader{}
+	upgrader := gorilla.Upgrader{}
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("X-Client") != "netty" {
 			t.Error("missing client header")

@@ -1,4 +1,4 @@
-package netty_ws
+package ws
 
 import (
 	"bytes"
@@ -8,9 +8,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/gorilla/websocket"
+	gorilla "github.com/gorilla/websocket"
 	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/utils"
+	"github.com/yukino-js/netty-go/internal/utils"
 )
 
 // Conn is a websocket connection.
@@ -185,7 +185,7 @@ func (c *wsConn) HandleException(ctx netty.ExceptionContext, ex netty.Exception)
 
 func (c *wsConn) HandleInactive(ctx netty.InactiveContext, ex netty.Exception) {
 	// covert error
-	var closeErr *websocket.CloseError
+	var closeErr *gorilla.CloseError
 	if errors.As(ex, &closeErr) {
 		ex = ClosedError{Code: closeErr.Code, Reason: closeErr.Text}
 	}

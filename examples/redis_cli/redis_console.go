@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/examples/redis_cli/redis_go"
+	"github.com/yukino-js/netty-go/examples/redis_cli/resp"
 )
 
 type simpleRedisConsole struct {
-	respChan chan *redis_go.Resp
+	respChan chan *resp.Resp
 }
 
 func (s *simpleRedisConsole) HandleActive(ctx netty.ActiveContext) {
@@ -22,7 +22,7 @@ func (s *simpleRedisConsole) HandleActive(ctx netty.ActiveContext) {
 }
 
 func (s *simpleRedisConsole) HandleRead(ctx netty.InboundContext, message netty.Message) {
-	s.respChan <- message.(*redis_go.Resp)
+	s.respChan <- message.(*resp.Resp)
 }
 
 func (s *simpleRedisConsole) HandleInactive(ctx netty.InactiveContext, ex netty.Exception) {
@@ -33,7 +33,7 @@ func (s *simpleRedisConsole) HandleInactive(ctx netty.InactiveContext, ex netty.
 
 func (s *simpleRedisConsole) attachConsole(ctx netty.HandlerContext) {
 
-	s.respChan = make(chan *redis_go.Resp, 1)
+	s.respChan = make(chan *resp.Resp, 1)
 
 	fmt.Print(ctx.Channel().RemoteAddr(), ">")
 
@@ -52,24 +52,24 @@ func (s *simpleRedisConsole) attachConsole(ctx netty.HandlerContext) {
 				inputs := strings.Split(text, " ")
 
 				// build command.
-				var cmds = make([]redis_go.Value, 0, len(inputs))
+				var cmds = make([]resp.Value, 0, len(inputs))
 				for _, v := range inputs {
-					cmds = append(cmds, redis_go.BlukString(v))
+					cmds = append(cmds, resp.BlukString(v))
 				}
 
 				// send redis command.
 				ctx.Write(cmds)
 
 				// print response
-				resp := <-s.respChan
+				reply := <-s.respChan
 
 				switch {
-				case resp.Null:
+				case reply.Null:
 					fmt.Println("(empty)")
-				case len(resp.Data) > 0:
-					fmt.Println(resp.Data)
-				case len(resp.Array) > 0:
-					for index, rsp := range resp.Array {
+				case len(reply.Data) > 0:
+					fmt.Println(reply.Data)
+				case len(reply.Array) > 0:
+					for index, rsp := range reply.Array {
 						fmt.Println(fmt.Sprintf(`%d) "%s"`, index+1, rsp.Data))
 					}
 				}

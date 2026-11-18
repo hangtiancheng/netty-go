@@ -1,4 +1,4 @@
-package netty_ws
+package ws
 
 import (
 	"context"
@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"time"
 
-	ws "github.com/gorilla/websocket"
+	gorilla "github.com/gorilla/websocket"
 	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/transports/websocket"
+	"github.com/yukino-js/netty-go/transport/websocket"
 )
 
 // MessageType websocket message type
@@ -68,12 +68,12 @@ func parseOptions(opt ...Option) *options {
 }
 
 func (wso *options) wsOptions() *websocket.Options {
-	opCode := ws.TextMessage
+	opCode := gorilla.TextMessage
 	if MsgBinary == wso.messageType {
-		opCode = ws.BinaryMessage
+		opCode = gorilla.BinaryMessage
 	}
 
-	var dialer = *ws.DefaultDialer
+	var dialer = *gorilla.DefaultDialer
 	dialer.HandshakeTimeout = wso.dialTimeout
 
 	if wso.dialer != nil {

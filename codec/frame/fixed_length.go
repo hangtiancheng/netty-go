@@ -5,7 +5,7 @@ import (
 
 	"github.com/yukino-js/netty-go"
 	"github.com/yukino-js/netty-go/codec"
-	"github.com/yukino-js/netty-go/utils"
+	"github.com/yukino-js/netty-go/internal/utils"
 )
 
 // FixedLengthCodec create fixed length codec

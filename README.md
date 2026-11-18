@@ -6,7 +6,7 @@ netty-go is heavily inspired by [netty](https://github.com/netty/netty)
 
 ## Feature
 
-- Extensible transport support, default support TCP, [UDP, QUIC, KCP, Websocket](https://github.com/yukino-js/netty-go/transports)
+- Extensible transport support, default support TCP, [UDP, QUIC, KCP, Websocket](./transport)
 - Extensible codec support
 - Based on responsibility chain model
 - Byte buffer reuse through [go-buffer-pool](https://github.com/libp2p/go-buffer-pool)
@@ -17,26 +17,34 @@ netty-go is heavily inspired by [netty](https://github.com/netty/netty)
 
 ## Repository layout
 
-This repository is a Go workspace. Every module lives in its own top-level directory:
+This repository is a single Go module. Everything is built and tested together with `go build ./...` and `go test ./...`.
 
-| Module     | Directory    | Import path                                |
-| ---------- | ------------ | ------------------------------------------ |
-| core       | `.`          | `github.com/yukino-js/netty-go`            |
-| transports | `transports` | `github.com/yukino-js/netty-go/transports` |
-| websocket  | `ws`         | `github.com/yukino-js/netty-go/ws`         |
-| examples   | `examples`   | `github.com/yukino-js/netty-go/examples`   |
+| Directory      | Package     | Purpose                                        |
+| -------------- | ----------- | ---------------------------------------------- |
+| `.`            | `netty`     | Bootstrap, channel, pipeline and handler APIs  |
+| `codec/`       | `codec`     | Message codecs                                 |
+| `transport/`   | `transport` | Transport interfaces and built-in TCP support  |
+| `transport/*/` | protocol    | KCP, QUIC, TLS, UDP and WebSocket transports   |
+| `ws/`          | `ws`        | High-level WebSocket server and client API     |
+| `internal/`    | internal    | Implementation details, including byte helpers |
+| `examples/`    | `main`      | Runnable examples                              |
 
-`go.work` connects the modules for local builds and tests, so changes in one module are immediately visible to the others. Each module keeps its own `go.mod` and `go.sum`, and can be built on its own with `go build ./...`.
-
-The core uses `github.com/libp2p/go-buffer-pool` directly for temporary byte slices. The former `utils/pool`, `pbytes`, and `pbuffer` packages have been removed. Buffer capacities and retention follow libp2p's power-of-two pools, including buffers larger than the former 64 KiB limit.
+The core uses `github.com/libp2p/go-buffer-pool` directly for temporary byte slices. Buffer capacities and retention follow libp2p's power-of-two pools.
 
 ## Examples
 
-- [chat_server](https://github.com/yukino-js/netty-go/examples/blob/master/chat_server/main.go)
-- [file_server](https://github.com/yukino-js/netty-go/examples/blob/master/file_server/main.go)
-- [tcp_server](https://github.com/yukino-js/netty-go/examples/blob/master/tcp_server/main.go)
-- [redis_cli](https://github.com/yukino-js/netty-go/examples/blob/master/redis_cli/main.go)
-- [netty-go-examples](https://github.com/yukino-js/netty-go/examples)
+- [chat_server](./examples/chat_server)
+- [file_server](./examples/file_server)
+- [https_server](./examples/https_server)
+- [redis_cli](./examples/redis_cli)
+- [tcp_server](./examples/tcp_server)
+- [websocket](./examples/websocket)
+
+Run an example from the repository root, for example:
+
+```bash
+go run ./examples/tcp_server
+```
 
 ## Quick Start
 

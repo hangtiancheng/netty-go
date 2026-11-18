@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/yukino-js/netty-go/internal/utils"
 	"github.com/yukino-js/netty-go/transport"
 	"github.com/yukino-js/netty-go/transport/tcp"
-	"github.com/yukino-js/netty-go/utils"
 )
 
 func TestBootstrap(t *testing.T) {

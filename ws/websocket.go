@@ -1,4 +1,4 @@
-package netty_ws
+package ws
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/yukino-js/netty-go"
 	"github.com/yukino-js/netty-go/transport"
-	"github.com/yukino-js/netty-go/transports/websocket"
+	"github.com/yukino-js/netty-go/transport/websocket"
 )
 
 type OnOpenFunc func(conn Conn)

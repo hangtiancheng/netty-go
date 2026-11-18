@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/yukino-js/netty-go"
-	"github.com/yukino-js/netty-go/utils"
 )
 
 func main() {
@@ -22,7 +21,9 @@ func main() {
 	fmt.Println("connecting redis server ...")
 
 	ch, err := bootstrap.Connect("127.0.0.1:6379")
-	utils.Assert(err)
+	if nil != err {
+		panic(err)
+	}
 
 	select {
 	case <-ch.Context().Done():

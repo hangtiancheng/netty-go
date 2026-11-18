@@ -6,7 +6,7 @@ import (
 
 	"github.com/yukino-js/netty-go"
 	"github.com/yukino-js/netty-go/codec/xhttp"
-	"github.com/yukino-js/netty-go/transports/tls"
+	"github.com/yukino-js/netty-go/transport/tls"
 )
 
 func main() {
